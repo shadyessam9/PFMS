@@ -1,0 +1,161 @@
+﻿@model PFMS.ViewModels.ViewItem
+
+
+<!DOCTYPE html>
+<!-- molla/checkout.html  22 Nov 2019 09:55:06 GMT -->
+<head>
+
+    <!-- Plugins CSS File -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <!-- Main CSS File -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+    <meta charset="UTF-8">
+
+    <script>
+          function returncolor1(){$('#avg_a_time').css('border-color', '#ebebeb');}
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#Edit").click(function (e) {
+                $("#LoadModal").modal('show');
+                  var data = {};
+                $.each($("#sitedata").serializeArray(), function () {
+                    data[this.name] = this.value;
+                });
+                $.ajax({
+                    url: "/Editsite/Edit",
+                    type: "POST",
+                    async: true,
+                    cache: false,
+                    dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    data: data,
+                    success: function (data) {
+                        if (data.status === "success") {
+                            $("#LoadModal").modal('hide');
+                            var p = document.querySelector("#SucessModal").querySelector("#modalp");
+                            var ok = document.querySelector("#SucessModal").querySelector("#modalok");
+                            p.innerText = "تم التعديل  بنجاح ";
+                            ok.addEventListener('click', function () { window.location.href = '@Url.Action("dashboard", "Home")' })
+                            $("#SucessModal").modal('show');
+                        } else if (data.status === "error") {
+                            $("#LoadModal").modal('hide');
+                            var p = document.querySelector("#errorModal").querySelector("#modalp");
+                            var ok = document.querySelector("#errorModal").querySelector("#modalok");
+                            p.innerText = "خطاء في التعديل  ,  يرجي اعاده المحاوله";
+                            ok.addEventListener('click', function () { $("#errorModal").modal('hide') })
+                            $("#errorModal").modal('show')
+                        }
+                    }
+                });
+
+            })
+        });
+    </script>
+
+
+
+</head>
+
+<body>
+    <div class="page-content">
+
+        <div class="container" style="margin-top: 30px;">
+            <div class="row content">
+                <div class="col-sm-8">
+
+                    <label for="content" class="col-md-12 control-label pull-right " style="text-align:right"><h2>بيانات موقع  :  @Model.site.s_name </h2></label>
+
+                    <form id="sitedata">
+
+
+                        <div class="col-12">
+                            <label for="content" class="col-md-12 control-label pull-right " style="text-align:right">وقت الوصول التقريبي*</label>
+                            <div class="row">
+                                <div class="col-4">
+                                    <label for="m" class="col-md-12 control-label pull-right " style="text-align:right">دقائق  :</label>
+                                    <input id="avg_a_time" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');returncolor2()" name="avg_a_time" class="form-control" style="text-align: center;" type="text" min="0" max="60" maxlength="2" value=0 required>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-12" style="margin-top: 50px;">
+                            <button id="Edit" type="button" class="btn btn-primary btn-lg">تعديل</button>
+                        </div><!-- End .col-6 -->
+
+                    </form>
+
+                </div>
+
+
+
+            </div>
+        </div>
+
+
+
+        <!-- Loading Modal -->
+        <div class="modal fade" id="LoadModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" style="width:200px">
+                <div class="modal-content">
+                    <button class="btn btn-primary" type="button" disabled>
+                        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                        <span class="visually-hidden"> ...جاري التحميل</span>
+                    </button>
+                </div>
+            </div>
+        </div><!-- Loading Modal -->
+        <!-- Success Modal -->
+        <div class="modal fade" id="SucessModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" style="width:400px">
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom: 0 none">
+                        <div class="container" style="margin-left: 150px; margin-right:150px; vertical-align: middle;">
+                            <i class='fas fa-check-circle' style='font-size:50px;color:green;'></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <h5 id="modalp" style="margin-top: 10px; margin-bottom:10px; text-align:center;vertical-align: middle;"></h5>
+                    </div>
+                    <div class="modal-footer" style="border-top: 0 none">
+                        <div class="container" id="cont" style="margin-left: 90px; margin-right:100px; vertical-align: middle;">
+                            <button class="btn btn btn-secondary" id="modalok" data-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End Success Modal -->
+        <!-- Error Modal-->
+        <div class="modal fade" id="errorModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" style="width:400px">
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom: 0 none">
+                        <div class="container" style="margin-left: 150px; margin-right:150px; vertical-align: middle;">
+                            <i class='fas fa-exclamation-triangle' style='font-size:50px;color:orange;'></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <h5 id="modalp" style="margin-top: 10px; margin-bottom:10px; text-align:center;vertical-align: middle;"></h5>
+                    </div>
+                    <div class="modal-footer" style="border-top: 0 none">
+                        <div class="container" id="cont" style="margin-left: 90px; margin-right:100px; vertical-align: middle;">
+                            <button class="btn btn btn-secondary" id="modalok" data-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End ErrorModal -->
+
+
+    </div><!-- End .page-wrapper -->
+</body>
+
+
+<!-- molla/checkout.html  22 Nov 2019 09:55:06 GMT -->

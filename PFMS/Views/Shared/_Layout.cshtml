@@ -1,0 +1,286 @@
+﻿
+
+<!DOCTYPE html>
+
+<!-- PFMS/Layout  13 Dec 2022 02:52:00 GMT -->
+<head>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>PFMS</title>
+    <meta name="keywords" content="HTML5 Template">
+    <meta name="author" content="p-themes">
+    <base href="/appPrefix" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/assets/images/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/assets/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/assets/images/icons/favicon-16x16.png">
+    <link rel="manifest" href="~/assets/images/icons/site.html">
+    <link rel="mask-icon" href="~/assets/images/icons/safari-pinned-tab.svg" color="#666666">
+    <link rel="shortcut icon" href="~/assets/images/icons/favicon.ico">
+    <meta name="apple-mobile-web-app-title" content="Molla">
+    <meta name="application-name" content="Molla">
+    <meta name="msapplication-TileColor" content="#cc9966">
+    <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+
+
+    <!-- Main JS File -->
+    <script src="~/assets/js/main.js"></script>
+
+    <!-- Plugins CSS File -->
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/bootstrap450.css">
+    <link rel="stylesheet" href="~/assets/css/fontawsome470.css">
+    <link rel="stylesheet" href="~/assets/css/googleapisicons.css">
+    <link rel="stylesheet" href="~/assets/css/googleapisfonts.css">
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <!-- Main CSS File -->
+    <link rel="stylesheet" href="~/assets/css/style.css">
+
+
+
+
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: 'POST',
+                url: '/Home/meta',
+                data: {},
+                success: function (data) {
+
+                    document.querySelector("#ship").innerText = data.ship;
+                    document.querySelector("#shift").innerText = data.shift;
+
+                }
+            })
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#update").click(function (e) {
+                $("#inputModal").modal('show');
+            })
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#save").click(function (e) {
+                var input = document.querySelector("#inputModal").querySelector("#input").value;
+                $("#inputModal").modal('hide');
+                $("#LoadModal").modal('show');
+                $.ajax({
+                    url: '/Home/updateship',
+                    type: "POST",
+                    async: true,
+                    cache: false,
+                    dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    data: { shp: input },
+                    success: function (data) {
+                        if (data.status === "success") {
+                            $("#LoadModal").modal('hide');
+                            var p = document.querySelector("#SucessModal").querySelector("#modalp");
+                            var ok = document.querySelector("#SucessModal").querySelector("#modalok");
+                            p.innerText = "تم التعديل  بنجاح ";
+                            ok.addEventListener('click', function () { window.location.reload() })
+                            $("#SucessModal").modal('show');
+                        } else if (data.status === "error") {
+                            $("#LoadModal").modal('hide');
+                            var p = document.querySelector("#errorModal").querySelector("#modalp");
+                            var ok = document.querySelector("#errorModal").querySelector("#modalok");
+                            p.innerText = "خطاء في التعديل  ,  يرجي اعاده المحاوله";
+                            ok.addEventListener('click', function () { $("#errorModal").modal('hide') })
+                            $("#errorModal").modal('show')
+                        }
+                    }
+                });
+
+            })
+
+        });
+    </script>
+
+</head>
+
+
+
+<body>
+    <div class="page-wrapper">
+
+        <header class="header">
+
+            <div class="header-middle sticky-header">
+                <div class="container">
+                    <div class="header-left">
+                        <button class="mobile-menu-toggler">
+                            <i class="icon-bars"></i>
+                        </button>
+
+
+                        <a href="Home" class="logo" style="margin-left: 20px;">
+                            <img src="assets/images/logo.png" width="250" height="150">
+                        </a>
+
+
+
+                        <nav class="main-nav">
+                            <ul class="menu sf-arrows">
+
+                                <li>
+                                    <a class="sf-with-ul">عاملين</a>
+                                    <ul>
+                                        <li>@Html.ActionLink("قائمه العاملين", "Index", "Personnel")</li>
+                                    </ul>
+                                </li>
+
+                                <li>
+                                    <a class="sf-with-ul">سيارات</a>
+                                    <ul>
+                                        <li>@Html.ActionLink("اضافه سياره", "Index", "Addvehicle")</li>
+                                        <li>@Html.ActionLink("شركات السيارات", "Index", "Vehiclecompanies")</li>
+                                    </ul>
+                                </li>
+
+
+                                <li>
+                                    <a class="sf-with-ul">المواقع</a>
+
+                                    <ul>
+                                        <li>@Html.ActionLink("اضافه موقع", "Index", "Addsite")</li>
+                                        <li>@Html.ActionLink("قائمه المواقع", "Index", "Sitelist")</li>
+                                    </ul>
+                                </li>
+
+
+                            </ul><!-- End .menu -->
+                        </nav><!-- End .main-nav -->
+                    </div><!-- End .header-left -->
+
+                    <div class="header-right">
+                        <div class="header-search header-search-extended header-search-visible d-none d-lg-block">
+                            <a id="update" class="badge text-bg-primary" style="margin-left: 10px;"><label id="ship" style="font-size:15px"></label><i class='fas fa-ship' style="font-size:15px;margin-left: 10px;margin-right: 10px;"></i></a>
+                            <a class="badge text-bg-primary" style="margin-left: 10px;"><label id="shift" style="font-size:15px"></label><i class="fas fa-clock" style="font-size:15px;margin-left: 10px;margin-right: 10px;"></i></a>
+                        </div>
+
+                    </div><!-- End .container -->
+                </div><!-- End .header-middle -->
+            </div>
+        </header><!-- End .header -->
+
+        <main class="page-wrapper" dir="rtl">
+
+            @RenderBody()
+
+        </main><!-- End .main -->
+
+
+
+        <footer class="footer">
+
+            <div class="footer-bottom">
+                <div class="container" dir="ltr">
+                    <p class="footer-copyright">Copyright © 2022 PFMS. All Rights Reserved.</p><!-- End .footer-copyright -->
+                </div><!-- End .container -->
+            </div><!-- End .footer-bottom -->
+        </footer><!-- End .footer -->
+
+
+
+    </div><!-- End .page-wrapper -->
+    <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
+
+
+
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
+
+    <div class="mobile-menu-container">
+        <div class="mobile-menu-wrapper">
+            <span class="mobile-menu-close"><i class="icon-close"></i></span>
+
+            <h3 style="color: white; margin-left: 15px;">MAIN MENU</h3>
+
+
+            <nav class="mobile-nav">
+                <ul class="mobile-menu">
+                    <li>
+                        <a class="sf-with-ul">عاملين</a>
+                        <ul>
+                            <li>@Html.ActionLink("قائمه العاملين", "Index", "Personnel")</li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a class="sf-with-ul">سيارات</a>
+                        <ul>
+                            <li>@Html.ActionLink("اضافه سياره", "Index", "Addvehicle")</li>
+                            <li>@Html.ActionLink("شركات السيارات", "Index", "VehicleCompanies")</li>
+                        </ul>
+                    </li>
+
+
+                    <li>
+                        <a class="sf-with-ul">المواقع</a>
+
+                        <ul>
+                            <li>@Html.ActionLink("اضافه موقع", "Index", "AddSite")</li>
+                            <li>@Html.ActionLink("قائمه المواقع", "Index", "SiteList")</li>
+                        </ul>
+                    </li>
+                </ul>
+
+            </nav><!-- End .mobile-nav -->
+
+        </div><!-- End .mobile-menu-wrapper -->
+    </div><!-- End .mobile-menu-container -->
+    <!-- input Modal -->
+    <div class="modal fade" id="inputModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" style="width:400px">
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom: 0 none">
+                    <div class="container" style="margin-left: 150px; margin-right:150px; vertical-align: middle;">
+                        <i class='fas fa-ship' style='font-size:50px;'></i>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="container" style="margin-left: 15px; margin-right:5px; vertical-align: middle;">
+                        <input type="text" id="input" style="width:350px;text-align:center;" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="border-top: 0 none">
+                    <div class="container" id="save" style="margin-left: 90px; margin-right:100px; vertical-align: middle;">
+                        <button class="btn btn btn-secondary" id="save" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div><!-- input Modal -->
+</body>
+
+
+<!-- Plugins JS File -->
+<script src="~/assets/js/jquery.min.js"></script>
+<script src="~/assets/js/bootstrap.bundle.min.js"></script>
+<script src="~/assets/js/bootstrap530.js"></script>
+<script src="~/assets/js/bootstrap450.js"></script>
+<script src="~/assets/js/jquery.hoverIntent.min.js"></script>
+<script src="~/assets/js/jquery.waypoints.min.js"></script>
+<script src="~/assets/js/superfish.min.js"></script>
+<script src="~/assets/js/owl.carousel.min.js"></script>
+<script src="~/assets/js/fontawsome.js"></script>
+<script src="~/assets/js/qr.js"></script>
+<script src="~/assets/js/popper.js"></script>
+
+
+<!-- PFMS/Layout  13 Dec 2022 02:52:00 GMT -->

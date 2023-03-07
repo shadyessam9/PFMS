@@ -1,0 +1,506 @@
+﻿<!-- PFMS/HOME  12 Dec 2019 09:00:00 GMT -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+    <!-- Main CSS File -->
+    <link rel="stylesheet" href="~/assets/css/style.css">
+    <link rel="stylesheet" href="~/assets/css/homestyle.css">
+
+
+    <script type="text/javascript">
+        $(function () {
+            setInterval(function () {
+                PopulateData1();
+                PopulateData2();
+                PopulateData3();
+            }, 1000)
+        });
+        function PopulateData1() {
+            $.ajax({
+                type: 'POST',
+                url: '/Home/getScans',
+                data: {},
+                success: function (data) {
+                    var tbody = document.getElementById('scans').getElementsByTagName('tbody')[0];
+                    tbody.innerHTML = "";
+                    $.each(data, function (i, item) {
+                        var newRow = tbody.insertRow();
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.V);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.driver);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.site);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.trip_time);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.delay);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        if (item.type == "A") { newText = document.createTextNode("وصول"); }
+                        if (item.type == "L") { newText = document.createTextNode("مغادره"); }
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+                        newCell = newRow.insertCell();
+                        icon = document.createElement('i');
+                        icon.setAttribute('class', "fas fa-circle");
+                        if (item.state == "ON TIME") { icon.setAttribute('style', "font-size:10px;color:green"); }
+                        else if (item.state == "LATE") { icon.setAttribute('style', "font-size:10px;color:red"); }
+                        else if (item.state == "POINT SKIP") { icon.setAttribute('style', "font-size:10px;color:red"); }
+                        else { icon.setAttribute('style', "font-size:10px;color:grey"); }
+                        newCell.appendChild(icon);
+
+
+
+
+
+
+                    });
+                }
+            })
+        }
+
+
+        function PopulateData2() {
+            $.ajax({
+                type: 'POST',
+                url: '/Home/getViolations',
+                data: {},
+                success: function (data) {
+                    var tbody = document.getElementById('violations').getElementsByTagName('tbody')[0];
+                    tbody.innerHTML = "";
+                    $.each(data, function (i, item) {
+                        var newRow = tbody.insertRow();
+
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.V);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.site);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.cause);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+
+                        newCell = newRow.insertCell();
+                        anchor = document.createElement('a');
+                        anchor.setAttribute('data-value', item.v_id);
+                        anchor.setAttribute('title', "اظهار");
+                        anchor.setAttribute('style', "cursor: pointer;");
+
+                        anchor.onclick = function (e) {
+
+                            $.ajax({
+                                url: '/Home/viodata',
+                                type: "POST",
+                                async: true,
+                                cache: false,
+                                dataType: 'json',
+                                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                                data: { id: item.v_id },
+                                success: function (data) {
+
+                                    $.each(data, function (i, item) {
+
+                                        var loc = document.querySelector("#VioModal").querySelector("#modalloc");
+                                        var tim = document.querySelector("#VioModal").querySelector("#modaltim");
+                                        var veh = document.querySelector("#VioModal").querySelector("#modalveh");
+                                        var cus = document.querySelector("#VioModal").querySelector("#modalcus");
+                                        loc.innerText = item.site;
+                                        tim.innerText = item.trip_time;
+                                        veh.innerText = item.V;
+                                        if (item.cause == 1) {
+                                            cus.innerText = "تخطي الوقت المسموح للوصول";
+                                        }
+                                        else if (item.cause == 2) {
+                                            cus.innerText = "تخطي الموقع السابق";
+                                        }
+
+
+                                        var ok = document.querySelector("#VioModal").querySelector("#modalok");
+                                        var cancel = document.querySelector("#VioModal").querySelector("#modalcancel");
+
+                                       
+
+
+
+                                        ok.addEventListener('click', function () {
+
+                                            $("#LoadModal").modal('show');
+
+                                            $.ajax({
+                                                url: '/Home/reactivate',
+                                                type: "POST",
+                                                async: true,
+                                                cache: false,
+                                                dataType: 'json',
+                                                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                                                data: { vid: item.vi_id, vhid: item.vh_id },
+                                                success: function (data) {
+                                                    if (data.status === "success") {
+
+                                                        $("#LoadModal").modal('hide');
+
+                                                        var p = document.querySelector("#SucessModal").querySelector("#modalp");
+                                                        var ok = document.querySelector("#SucessModal").querySelector("#modalok");
+                                                        p.innerText = "تم اعاده تشغيل السياره بنجاح ";
+
+                                                        ok.addEventListener('click', function () { $("#SucessModal").modal('hide'); $("#VioModal").modal('hide') })
+
+                                                        $("#SucessModal").modal('show');
+
+                                                    } else if (data.status === "error") {
+                                                        $("#LoadModal").modal('hide');
+                                                        var p = document.querySelector("#SucessModal").querySelector("#modalp");
+                                                        var ok = document.querySelector("#SucessModal").querySelector("#modalok");
+                                                        p.innerText = "خطاء في اعاده التشغيل  ,  يرجي اعاده المحاوله";
+                                                        ok.addEventListener('click', function () { $("#errorModal").modal('hide') })
+
+                                                    }
+                                                }
+                                            });
+
+                                        })
+                                        cancel.addEventListener('click', function () { $("#VioModal").modal('hide'); })
+                                        $("#VioModal").modal('show');
+                                        
+                                    })
+
+                                }
+
+                            });
+
+
+                        };
+                        icon = document.createElement('i');
+                        icon.setAttribute('style', "font-size:15px;color:red");
+                        icon.setAttribute('class', "fas fa-exclamation-circle");
+                        anchor.appendChild(icon);
+                        newCell.appendChild(anchor);
+
+
+
+                    });
+                }
+            })
+        }
+
+
+
+
+        function PopulateData3() {
+            $.ajax({
+                type: 'POST',
+                url: '/Home/getVehicles',
+                data: {},
+                success: function (data) {
+                    var tbody = document.getElementById('vehicles').getElementsByTagName('tbody')[0];
+                    tbody.innerHTML = "";
+                    $.each(data, function (i, item) {
+                        var newRow = tbody.insertRow();
+
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.V);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+
+                        newCell = newRow.insertCell();
+                        span = document.createElement('span');
+                        span.style.fontSize = "15px";
+                        newText = document.createTextNode(item.driver);
+                        span.appendChild(newText);
+                        newCell.appendChild(span);
+
+
+
+                        newCell = newRow.insertCell();
+                        anchor = document.createElement('a');
+                        anchor.setAttribute('title', "طبع");
+                        anchor.setAttribute('style', "cursor: pointer;");
+                        anchor.onclick = function (e) {
+
+                            document.querySelector("#qrcode").innerHTML = "";
+
+                            var qrcode = new QRCode(document.querySelector("#qrcode"), {
+                                text: JSON.stringify(item.v_id),
+                                width: 800,
+                                height: 800,
+                                colorDark: "#000000",
+                                colorLight: "#ffffff",
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+
+                            setTimeout(() => {
+                                let mywindow = window.open('', 'PRINT', 'height=650,width=900,top=100,left=150');
+                                mywindow.document.write('<html><head><title>' + item.V + '</title>');
+                                mywindow.document.write('</head><body >');
+                                mywindow.document.write('<label style="font-size:100px;">' + item.V + '</label>');
+                                mywindow.document.write(document.querySelector("#qrcode").innerHTML)
+                                mywindow.document.write('</body></html>');
+                                mywindow.document.close();
+                                mywindow.focus();
+                                mywindow.print();
+                                mywindow.close();
+                            }, 500);
+
+                        }
+
+                        icon = document.createElement('i');
+                        icon.setAttribute('class', "fa fa-qrcode");
+                        anchor.appendChild(icon);
+                        newCell.appendChild(anchor);
+
+
+                        newCell = newRow.insertCell();
+                        icon = document.createElement('i');
+                        icon.setAttribute('class', "fas fa-circle");
+                        if (item.state == "0") { icon.setAttribute('style', "font-size:10px;color:green"); }
+                        else if (item.state == "1") { icon.setAttribute('style', "font-size:10px;color:red"); }
+                        newCell.appendChild(icon);
+
+
+
+                    });
+                }
+            })
+        }
+
+    </script>
+
+</head>
+
+
+
+<body>
+
+
+    <div class="page-content">
+        <div class="row">
+            <div class="rightcolumn" style="margin-top: 10px;">
+
+
+                <div class="row" dir="rtl">
+                    <span class="badge text-bg-primary" style="background-color: gray; font-size: 1.5rem; color: white; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin-left: 10px; margin-right: 10px;">الحركات</span>
+                    <span class="badge text-bg-primary" style="background-color: gray; font-size: 1.5rem; color: white; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin-left: 10px;">@ViewBag.today</span>
+                </div>
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="scans">
+                            <thead>
+                                <tr>
+                                    <th>رقم الوحه</th>
+                                    <th>قائد السياره</th>
+                                    <th>النقطه</th>
+                                    <th>وقت الرحله</th>
+                                    <th>مده التاخر</th>
+                                    <th>الحركه</th>
+                                    <th>الحاله</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table><!-- End .table table-wishlist -->
+                    </div><!-- End .container -->
+                </div>
+            </div>
+
+            <div class="leftcolumn" style="margin-top: 10px;">
+                <div class="row" dir="rtl">
+                    <span class="badge text-bg-primary" style="background-color: gray; font-size: 1.5rem; color: white; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin-right: 10px;">المخالفات</span>
+                </div>
+                <div class="card">
+                    <div class="table2-responsive">
+                        <table class="table" id="violations">
+                            <thead>
+                                <tr>
+                                    <th>رقم الوحه</th>
+                                    <th>النقطه</th>
+                                    <th>السبب</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table><!-- End .table table-wishlist -->
+                    </div><!-- End .container -->
+                </div>
+
+                <div class="row" dir="rtl">
+                    <span class="badge text-bg-primary" style="background-color: gray; font-size: 1.5rem; color: white; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin-top: 20px; margin-right: 10px;">السيارات</span>
+                </div>
+                <div class="card">
+                    <div class="table2-responsive">
+                        <table class="table" id="vehicles">
+                            <thead>
+                                <tr>
+                                    <th>رقم الوحه</th>
+                                    <th>قائد السياره</th>
+                                    <th>QR</th>
+                                    <th>الحاله</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table><!-- End .table table-wishlist -->
+                    </div><!-- End .container -->
+                </div>
+
+            </div>
+        </div>
+
+
+        <div id="qrcode" hidden></div>
+
+
+
+        <!-- Vio Modal -->
+        <div class="modal fade" id="VioModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" style="width:500px">
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom: 0 none">
+                        <h3 for="content" class="col-md-12 control-label pull-right " style="text-align:right"> بيانات المخالفه </h3>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="container">
+                            <div class="row content">
+                                <div class="col-sm-8">
+
+                                    <div class="col-8">
+                                        <h5 for="content" class="col-md-12 control-label pull-right " style="text-align:right">موقع : <label id="modalloc" style="font-size:20px;color:black"></label></h5>
+                                    </div><!-- End .col-6 -->
+
+                                    <div class="col-8">
+                                        <h5 for="content" class="col-md-12 control-label pull-right " style="text-align:right">الوقت : <label id="modaltim" style="font-size:20px;color:black"></label></h5>
+                                    </div><!-- End .col-6 -->
+
+                                    <div class="col-8">
+                                        <h5 for="content" class="col-md-12 control-label pull-right " style="text-align:right">سياره : <label id="modalveh" style="font-size:20px;color:black"></label></h5>
+                                    </div><!-- End .col-6 -->
+
+                                    <div class="col-8">
+                                        <h5 for="content" class="col-md-12 control-label pull-right " style="text-align:right">السبب : <label id="modalcus" style="font-size:20px;color:black"></label></h5>
+                                    </div><!-- End .col-6 -->
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer" style="border-top: 0 none">
+                        <div class="container" id="cont" style="margin-left: 10px; margin-right:10px; vertical-align: middle;">
+                            <button class="btn btn-danger" id="modalcancel" data-dismiss="modal">CANCEL</button>
+                            <button class="btn btn btn-secondary" id="modalok" data-dismiss="modal">REACTIVATE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End Vio Modal -->
+
+
+        <!-- Loading Modal -->
+        <div class="modal fade" id="LoadModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" style="width:200px">
+                <div class="modal-content">
+                    <button class="btn btn-primary" type="button" disabled>
+                        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                        <span class="visually-hidden"> ...جاري التحميل</span>
+                    </button>
+                </div>
+            </div>
+        </div><!-- Loading Modal -->
+        <!-- Success Modal -->
+        <div class="modal fade" id="SucessModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" style="width:400px">
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom: 0 none">
+                        <div class="container" style="margin-left: 150px; margin-right:150px; vertical-align: middle;">
+                            <i class='fas fa-check-circle' style='font-size:50px;color:green;'></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <h5 id="modalp" style="margin-top: 10px; margin-bottom:10px; text-align:center;vertical-align: middle;"></h5>
+                    </div>
+                    <div class="modal-footer" style="border-top: 0 none">
+                        <div class="container" id="cont" style="margin-left: 90px; margin-right:100px; vertical-align: middle;">
+                            <button class="btn btn btn-secondary" id="modalok" data-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End Success Modal -->
+        <!-- Error Modal-->
+        <div class="modal fade" id="errorModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" style="width:450px">
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom: 0 none">
+                        <div class="container" style="margin-left: 150px; margin-right:150px; vertical-align: middle;">
+                            <i class='fas fa-exclamation-triangle' style='font-size:50px;color:orange;'></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <h5 id="modalp" style="margin-top: 10px; margin-bottom:10px; text-align:center;vertical-align: middle;"></h5>
+                    </div>
+                    <div class="modal-footer" style="border-top: 0 none">
+                        <div class="container" id="cont" style="margin-left: 90px; margin-right:100px; vertical-align: middle;">
+                            <button class="btn btn btn-secondary" id="modalok" data-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End ErrorModal -->
+    </div>
+</body>
+</html>
+
+<!-- PFMS/HOME  12 Dec 2019 09:00:00 GMT -->
